@@ -16,9 +16,23 @@ def log(message, answer):
                                                                    message.text))
     print("Answer - ", answer)
 
-@bot.message_handler(commands=['menu'])
+@bot.message_handler(commands=['start'])
 def handle_text(message):
-    bot.send_message(message.chat.id, 'Hi')
+    bot.send_message(message.chat.id, """Hi!
+    There is a list of commands:
+    /tomorrow    -    command shows timetable for tomorrow 
+    /week        -    command shows timetable for week
+    /near        -    command shows homework that have to be done in 5 days """)
+
+    
+@bot.message_handler(commands=['tomorrow'])
+def handle_text(message):
+    bot.send_message(message.chat.id, "timetable for tomorrow")
+  
+
+@bot.message_handler(commands=['week'])
+def handle_text(message):
+    bot.send_message(message.chat.id, "timetable for week")
 
 
 @bot.message_handler(content_types=['text'])
