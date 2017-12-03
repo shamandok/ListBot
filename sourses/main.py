@@ -82,8 +82,13 @@ def handle_text(message):
         bot.send_message(message.chat.id, answer)
         log(message, answer)
 
-    #elif message.text == 'Saturday':
-     #   bot.send_sticker(message.chat.id, 0x10355ae10, reply_to_message_id=None)
+    elif (message.text == 'Сайт'):
+        keyboard = telebot.types.InlineKeyboardMarkup()
+        url_button = telebot.types.InlineKeyboardButton(text="Перейти на сайт МГТУ", url="https://students.bmstu.ru/schedule/62f5611c-a264-11e5-b4d3-005056960017")
+        keyboard.add(url_button)
+        bot.send_message(message.chat.id, "Нажми на кнопку и посмотри расписание на сайте МГТУ", reply_markup=keyboard)
+
+
     else:
         answer = """I do not know what you mean
 Use /list to see all commands"""
