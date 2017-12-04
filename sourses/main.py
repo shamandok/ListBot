@@ -1,6 +1,6 @@
 import telebot
 
-bot = telebot.TeleBot("458178330:AAFU4pElGPQb06VbUzypJzHtdzH107Ngqoc")
+bot = telebot.TeleBot("TOKEN")
 
 all_updates = bot.get_updates()
 last_update = all_updates[-1]
@@ -36,7 +36,10 @@ You can use /help to read more about the bot""")
 
 @bot.message_handler(commands=['help'])
 def handle_text(message):
-        bot.send_message(message.chat.id, """Fuck you^^$""")
+        keyboard = telebot.types.InlineKeyboardMarkup()
+        url_button = telebot.types.InlineKeyboardButton(text="Go to GitHub", url="https://students.bmstu.ru/schedule/62f5611c-a264-11e5-b4d3-005056960017")
+        keyboard.add(url_button)
+        bot.send_message(message.chat.id, "Посмотреть исходный код", reply_markup=keyboard)
 
 
 @bot.message_handler(content_types=['text'])
