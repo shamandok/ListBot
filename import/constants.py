@@ -31,6 +31,6 @@ content = ['Just send me the day of the week', """10:15 - 11:50   АЯП (лаб
 unknown_text = """I do not know what you mean
 Use /list to see all commands"""
 
-github_url = "https://github.com/vladislavburch/firstbot"
+github_url = "https://github.com/vladislavburch/ListBot"
 
 bmstu_url = "https://students.bmstu.ru/schedule/62f5611c-a264-11e5-b4d3-005056960017"
