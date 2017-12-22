@@ -1,8 +1,18 @@
 # -*- coding: utf-8 -*-
+import sys
+
+sys.path.append('../')
+from telebot import types
 
 class testListBot:
-    bot=telebot.Telebot("458178330:AAFU4pElGPQb06VbUzypJzHtdzH107Ngqoc")
-    def simple_mes():
-        bot.get_me()
-    def test_pos():
-        assert simple_mes() == {'id': 458178330, 'is_bot': True, 'first_name': 'MDFileBot', 'username': 'MDFileBot', 'last_name': None, 'language_code': None}
+    def test_message_handler(self):
+        bot = telebot.TeleBot('')
+        msg = self.create_text_message('/help')
+
+        @bot.message_handler(commands=['help', 'start'])
+        def command_handler(message):
+            message.text = 'got'
+
+        bot.process_new_messages([msg])
+        time.sleep(1)
+        assert msg.text == 'got'
