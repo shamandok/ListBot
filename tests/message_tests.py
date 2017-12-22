@@ -1,9 +1,14 @@
 # -*- coding: utf-8 -*-
-import sys
+import telebot
 
-sys.path.append('../')
-from telebot import types
 
+should_skip = 'TOKEN' and 'CHAT_ID' not in os.environ
+if not should_skip:
+    TOKEN = os.environ['TOKEN']
+    CHAT_ID = os.environ['CHAT_ID']
+    GROUP_ID = os.environ['GROUP_ID']
+
+@pytest.mark.skipif(should_skip, reason="No environment variables configured")
 class testListBot:
     def test_message_handler(self):
         bot = telebot.TeleBot('')
