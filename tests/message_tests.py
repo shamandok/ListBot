@@ -1,5 +1,5 @@
 import unittest
-import telebot
+import main
 import os
 
 
