@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
-import sys
 import os
 import pytest
 import telebot
+import time
 
 
 should_skip = 'TOKEN' and 'CHAT_ID' not in os.environ
@@ -10,6 +10,7 @@ if not should_skip:
     TOKEN = os.environ['TOKEN']
     CHAT_ID = os.environ['CHAT_ID']
     GROUP_ID = os.environ['GROUP_ID']
+
 
 @pytest.mark.skipif(should_skip, reason="No environment variables configured")
 class testListBot:
