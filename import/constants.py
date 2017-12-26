@@ -1,5 +1,5 @@
 
-key = "458178330:AAFU4pElGPQb06VbUzypJzHtdzH107Ngqoc"
+key = "default key"
 
 start_message = """Hi, I am timetable bot!
 
