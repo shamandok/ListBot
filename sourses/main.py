@@ -6,7 +6,7 @@ import constants
 dynamic_dict_of_users = {'0': '0'}
 tmp = {}
 
-bot = telebot.TeleBot('458178330:AAFU4pElGPQb06VbUzypJzHtdzH107Ngqoc')
+bot = telebot.TeleBot('key')
 
 
 @bot.message_handler(commands=['start'])
