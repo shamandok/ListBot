@@ -1,85 +1,101 @@
+from User import User
 import telebot
 import constants
 
-bot = telebot.TeleBot(constants.key)
 
-all_updates = bot.get_updates()
-last_update = all_updates[len(all_updates)-1]
+dynamic_dict_of_users = {'0': '0'}
+tmp = {}
 
-
-def log(message, answer):
-    print('\n------')
-    from datetime import datetime
-    print(datetime.now())
-    print("Message from {0} {1}. (id = {2})\n Text - {3}".format(message.from_user.first_name,
-                                                                   message.from_user.last_name,
-                                                                   str(message.from_user.id),
-                                                                   message.text))
-    print("Answer - ", answer)
+bot = telebot.TeleBot('458178330:AAFU4pElGPQb06VbUzypJzHtdzH107Ngqoc')
 
 
 @bot.message_handler(commands=['start'])
 def handle_text(message):
-    bot.send_message(message.chat.id, constants.start_message)
+    u_id = message.from_user.id
+    if u_id in dynamic_dict_of_users:
+        user = dynamic_dict_of_users[u_id]
+        for i in user.events:
+
+            bot.send_message(message.chat.id, i + user.events[i])
+    else:
+        u1 = User(u_id)
+        tmp[u_id] = u1
+        dynamic_dict_of_users.update(tmp)
+        keyboard = telebot.types.ReplyKeyboardMarkup(resize_keyboard=True, one_time_keyboard=True)
+        keyboard.add(*[telebot.types.KeyboardButton(name) for name in ['Нужно', 'Не нужно']])
+        bot.send_message(message.chat.id, constants.start_mes, reply_markup=keyboard)
+        bot.register_next_step_handler(message, need_action_start)
 
 
-@bot.message_handler(commands=['list'])
+@bot.message_handler(commands=['timetable'])
 def handle_text(message):
-        bot.send_message(message.chat.id, constants.list_message)
+    keyboard = telebot.types.ReplyKeyboardMarkup(resize_keyboard=True, one_time_keyboard=True)
+    keyboard.add(*[telebot.types.KeyboardButton('Меню')])
+    bot.send_message(message.chat.id, "Сейчас дам посмотреть", reply_markup=keyboard)
+    bot.register_next_step_handler(message, need_action_menu)
 
 
 @bot.message_handler(commands=['help'])
 def handle_text(message):
-    keyboard = telebot.types.InlineKeyboardMarkup()
-    url_button = telebot.types.InlineKeyboardButton(text="Перейти на GitHub",
-                                                    url=constants.github_url)
-    keyboard.add(url_button)
-    bot.send_message(message.chat.id, "Исходный код", reply_markup=keyboard)
+    keyboard = telebot.types.ReplyKeyboardMarkup(resize_keyboard=True, one_time_keyboard=True)
+    keyboard.add(*[telebot.types.KeyboardButton('Меню')])
+    bot.send_message(message.chat.id, constants.help_mes, reply_markup=keyboard)
+    bot.register_next_step_handler(message, need_action_menu)
 
 
-@bot.message_handler(commands=['site'])
+@bot.message_handler(commands=['list'])
 def handle_text(message):
-    keyboard = telebot.types.InlineKeyboardMarkup()
-    url_button = telebot.types.InlineKeyboardButton(text="Перейти на сайт МГТУ",
-                                                    url=constants.bmstu_url)
-    keyboard.add(url_button)
-    bot.send_message(message.chat.id, "Нажми на кнопку и посмотри расписание на сайте МГТУ", reply_markup=keyboard)
+    keyboard = telebot.types.ReplyKeyboardMarkup(resize_keyboard=True, one_time_keyboard=True)
+    keyboard.add(*[telebot.types.KeyboardButton('Меню')])
+    bot.send_message(message.chat.id, constants.list_mes, reply_markup=keyboard)
+    bot.register_next_step_handler(message, need_action_menu)
 
 
-@bot.message_handler(content_types=['text'])
-def handle_text(message):
-    if (message.text == 'Hi') or (message.text == 'Hello'):
-        answer = constants.content[0]
-        bot.send_message(message.chat.id, answer)
-        log(message, answer)
-    elif (message.text == 'Monday') or message.text == 'monday' or message.text == 'mon' or message.text == 'Mon' or message.text == 'Понедельник':
-        answer = constants.content[1]
-        bot.send_message(message.chat.id, answer)
-        log(message, answer)
-    elif (message.text == 'Tuesday') or message.text == 'tuesday' or message.text == 'tue' or message.text == 'Tue':
-        answer = constants.content[2]
-        bot.send_message(message.chat.id, answer)
-        log(message, answer)
-    elif (message.text == 'Wednesday') or message.text == 'wednesday' or message.text == 'wed' or message.text == 'Wed':
-        answer = constants.content[3]
-        bot.send_message(message.chat.id, answer)
-        log(message, answer)
+def need_action_menu(message):
+    if message.text == 'Меню':
 
-    elif (message.text == 'Thursday') or message.text == 'thursday' or message.text == 'thu' or message.text == 'Thu':
-        answer = constants.content[4]
-        bot.send_message(message.chat.id, answer)
-        log(message, answer)
-
-    elif (message.text == 'Friday') or message.text == 'friday' or message.text == 'fri' or message.text == 'Fri':
-        answer = constants.content[5]
-        bot.send_message(message.chat.id, answer)
-        log(message, answer)
-
+        keyboard = telebot.types.ReplyKeyboardMarkup(resize_keyboard=True, one_time_keyboard=True)
+        keyboard.add(*[telebot.types.KeyboardButton(name) for name in ['Events', 'Timetable', 'Add event', 'Else']])
+        print(dynamic_dict_of_users)
+        bot.send_message(message.chat.id, 'Menu', reply_markup=keyboard)
     else:
-        answer = constants.unknown_text
-        bot.send_message(message.chat.id, answer)
-        log(message, answer)
+        bot.send_message(message.chat.id, "Что-то другое")
+    bot.register_next_step_handler(message, need_action_from_menu)
 
 
-print(last_update)
+def need_action_start(message):
+    keyboard = telebot.types.ReplyKeyboardMarkup(resize_keyboard=True, one_time_keyboard=True)
+    keyboard.add(*[telebot.types.KeyboardButton('Меню')])
+    if message.text == 'Нужно':
+        u_id = message.from_user.id
+        user = dynamic_dict_of_users[u_id]
+        user.parse_timetable()
+        for i in user.timetable:
+            bot.send_message(message.chat.id, str(i))
+        bot.send_message(message.chat.id, "___", reply_markup=keyboard)
+        print(dynamic_dict_of_users)
+    elif message.text == 'Не нужно':
+        bot.send_message(message.chat.id, "Жаль", reply_markup=keyboard)
+    else:
+        bot.send_message(message.chat.id, "Что-то другое", reply_markup=keyboard)
+
+    bot.register_next_step_handler(message, need_action_menu)
+
+
+def need_action_from_menu(message):
+    keyboard = telebot.types.ReplyKeyboardMarkup(resize_keyboard=True, one_time_keyboard=True)
+    keyboard.add(*[telebot.types.KeyboardButton('Меню')])
+    if message.text == 'Events':
+        bot.send_message(message.chat.id, "Events")
+    elif message.text == 'Timetable':
+        bot.send_message(message.chat.id, "Timetable")
+    elif message.text == 'Add event':
+        bot.send_message(message.chat.id, "Add event")
+    elif message.text == 'Else':
+        bot.send_message(message.chat.id, "Else")
+    else:
+        bot.send_message(message.chat.id, "Don't know what you mean")
+
+
+print(bot.get_updates())
 bot.polling(none_stop=True, interval=0)
