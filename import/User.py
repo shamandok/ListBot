@@ -15,11 +15,23 @@ class User(object):
 
         self.timetable = []
 
+        self.tmp_event = ''
+
     def set_id(self, u_id):
         """Helpful function that changes field User.user_id.
         :param u_id: user id"""
 
         self.user_id = u_id
+
+    def set_tmp_event(self, date):
+        """Helpful function that gives you an opportunity to add a new event
+        :param date that is an key in self.events dict"""
+        self.tmp_event = date
+
+    def get_tmp_event(self):
+        """Function realises an OOP paradigmatics"""
+        return self.tmp_event
+
 
     def add_event(self, date, description):
         """Function allows you to add events.
@@ -50,7 +62,7 @@ class User(object):
         self.events[date] = new_description
 
     def parse_timetable(self):
-        """Function add the timetable from official site to timetable array"""
+        """Function adds the timetable from official site to timetable array"""
         s = requests.get('https://students.bmstu.ru/schedule/62f5611c-a264-11e5-b4d3-005056960017')
         b = BeautifulSoup(s.text, "html.parser")
 
@@ -61,3 +73,37 @@ class User(object):
 
             for i in first:
                 self.timetable.append(i.getText())
+
+    def normalize_timetable(self):
+        """Need to be done before the timetable will be fixed!!!
+        Function changes unreadable timetable dict to dict with normal view"""
+        self.parse_timetable()
+        useless_char = ['ПН', 'ВТ', "СР", "ЧТ", "ПТ", "СБ", '', ' ', "ЧС", "ЗН", 'Время', 'Понедельник', 'Вторник',
+                        'Среда',
+                        'Четверг', 'Пятница', 'Суббота']
+        days_of_the_week = {1: 'Понедельник', 2: 'Вторник', 3: 'Среда', 4: 'Четверг', 5: 'Пятница', 6: 'Суббота'}
+        tmp_timetable = self.timetable
+        self.timetable = {}
+        try:
+            for i in range(len(tmp_timetable)):
+                arr_str = tmp_timetable[i].split('\n')
+                flag = 0
+                tmp_str = ''
+                for j in range(len(arr_str)):
+                    if arr_str[j] not in useless_char and flag < 2:
+                        if len(arr_str[j]) == 13 and arr_str[j + 1] == ' ':
+                            tmp_str += arr_str[j] + '   '
+                            flag += 2
+                        else:
+                            tmp_str += arr_str[j]
+                            flag += 1
+                        tmp_str += '   '
+                    if flag == 2:
+                        tmp_str += '\n'
+                        flag = 0
+
+                tmp_str2 = days_of_the_week[i + 1]
+                self.timetable[tmp_str2] = tmp_str + '\n'
+
+        except BaseException:
+            return 'Just create normal timetable dict'
