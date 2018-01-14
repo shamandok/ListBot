@@ -1,3 +1,4 @@
+import constants
 import requests
 from bs4 import BeautifulSoup
 
@@ -17,6 +18,15 @@ class User(object):
 
         self.tmp_event = ''
 
+    def __getitem__(self, item):
+        return self.events[item]
+
+    def __setitem__(self, key, value):
+        self.events[key] = value
+
+    def __len__(self):
+        return len(self.timetable)
+
     def set_id(self, u_id):
         """Helpful function that changes field User.user_id.
         :param u_id: user id"""
@@ -31,7 +41,6 @@ class User(object):
     def get_tmp_event(self):
         """Function realises an OOP paradigmatics"""
         return self.tmp_event
-
 
     def add_event(self, date, description):
         """Function allows you to add events.
@@ -48,10 +57,10 @@ class User(object):
 
         try:
             description = self.events[old_date]
-            self.events.pop(description)
+            self.events.pop(old_date)
             self.events[new_date] = description
 
-        except BaseException:
+        except IndexError:
             return 'Такой даты не существует в вашем списке событий'
 
     def change_event_description(self, date, new_description):
@@ -78,19 +87,16 @@ class User(object):
         """Need to be done before the timetable will be fixed!!!
         Function changes unreadable timetable dict to dict with normal view"""
         self.parse_timetable()
-        useless_char = ['ПН', 'ВТ', "СР", "ЧТ", "ПТ", "СБ", '', ' ', "ЧС", "ЗН", 'Время', 'Понедельник', 'Вторник',
-                        'Среда',
-                        'Четверг', 'Пятница', 'Суббота']
-        days_of_the_week = {1: 'Понедельник', 2: 'Вторник', 3: 'Среда', 4: 'Четверг', 5: 'Пятница', 6: 'Суббота'}
+
         tmp_timetable = self.timetable
         self.timetable = {}
         try:
-            for i in range(len(tmp_timetable)):
+            for i in range(0, len(tmp_timetable), 2):
                 arr_str = tmp_timetable[i].split('\n')
                 flag = 0
                 tmp_str = ''
                 for j in range(len(arr_str)):
-                    if arr_str[j] not in useless_char and flag < 2:
+                    if arr_str[j] not in constants.useless_char and flag < 2:
                         if len(arr_str[j]) == 13 and arr_str[j + 1] == ' ':
                             tmp_str += arr_str[j] + '   '
                             flag += 2
@@ -102,8 +108,14 @@ class User(object):
                         tmp_str += '\n'
                         flag = 0
 
-                tmp_str2 = days_of_the_week[i + 1]
+                tmp_str2 = constants.days_of_the_week[i + 1]
                 self.timetable[tmp_str2] = tmp_str + '\n'
 
         except BaseException:
             return 'Just create normal timetable dict'
+
+    def get_events(self):
+        return self.events
+
+    def get_timetable(self):
+        return self.timetable
