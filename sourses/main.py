@@ -1,4 +1,9 @@
-from User import User
+"""Кнопки more..
+edit timetable
+edit events"""
+
+
+from User import *
 import telebot
 import constants
 
@@ -8,13 +13,27 @@ tmp = {}
 
 bot = telebot.TeleBot('key')
 
+keyboard_menu = telebot.types.ReplyKeyboardMarkup(resize_keyboard=True, one_time_keyboard=True)
+keyboard_menu.add(telebot.types.KeyboardButton('Меню'))
+
+keyboard_menu2 = telebot.types.ReplyKeyboardMarkup(resize_keyboard=True, one_time_keyboard=True)
+keyboard_menu2.add(*[telebot.types.KeyboardButton(name) for name in ['Events', 'Timetable', 'Add event', 'More...']])
+
+keyboard_menu2_more = telebot.types.ReplyKeyboardMarkup(resize_keyboard=True, one_time_keyboard=True)
+keyboard_menu2_more.add(*[telebot.types.KeyboardButton(name) for name in ['Edit timetable', 'Edit events',
+                                                                          'See more features', 'delete myself',
+                                                                          'back']])
+
+keyboard_cancel = telebot.types.ReplyKeyboardMarkup(resize_keyboard=True, one_time_keyboard=True)
+keyboard_cancel.add(telebot.types.KeyboardButton('Cancel'))
+
 
 @bot.message_handler(commands=['start'])
 def handle_text(message):
     u_id = message.from_user.id
     if u_id in dynamic_dict_of_users:
         user = dynamic_dict_of_users[u_id]
-        for i in user.events:
+        for i in user.get_events():
 
             bot.send_message(message.chat.id, i + user.events[i])
     else:
@@ -29,122 +48,213 @@ def handle_text(message):
 
 @bot.message_handler(commands=['timetable'])
 def handle_text(message):
-    keyboard = telebot.types.ReplyKeyboardMarkup(resize_keyboard=True, one_time_keyboard=True)
-    keyboard.add(*[telebot.types.KeyboardButton('Меню')])
-    bot.send_message(message.chat.id, "Сейчас дам посмотреть", reply_markup=keyboard)
+    u_id = message.from_user.id
+    user = dynamic_dict_of_users[u_id]
+    tmp = user.get_timetable()
+    for i in tmp:
+        bot.send_message(message.chat.id, i + '\n' + tmp[i], reply_markup=keyboard_menu)
     bot.register_next_step_handler(message, need_action_menu)
 
 
 @bot.message_handler(commands=['help'])
 def handle_text(message):
-    keyboard = telebot.types.ReplyKeyboardMarkup(resize_keyboard=True, one_time_keyboard=True)
-    keyboard.add(*[telebot.types.KeyboardButton('Меню')])
-    bot.send_message(message.chat.id, constants.help_mes, reply_markup=keyboard)
+    bot.send_message(message.chat.id, constants.help_mes, reply_markup=keyboard_menu)
     bot.register_next_step_handler(message, need_action_menu)
 
 
 @bot.message_handler(commands=['list'])
 def handle_text(message):
-    keyboard = telebot.types.ReplyKeyboardMarkup(resize_keyboard=True, one_time_keyboard=True)
-    keyboard.add(*[telebot.types.KeyboardButton('Меню')])
-    bot.send_message(message.chat.id, constants.list_mes, reply_markup=keyboard)
+    bot.send_message(message.chat.id, constants.list_mes, reply_markup=keyboard_menu)
     bot.register_next_step_handler(message, need_action_menu)
 
 
 def need_action_menu(message):
 
-    print(message.text)
-
     if message.text == 'Меню':
-        keyboard = telebot.types.ReplyKeyboardMarkup(resize_keyboard=True, one_time_keyboard=True)
-        keyboard.add(*[telebot.types.KeyboardButton(name) for name in ['Events', 'Timetable', 'Add event', 'Else']])
         u_id = message.from_user.id
         user = dynamic_dict_of_users[u_id]
-        if len(user.events) == 0:
-            bot.send_message(message.chat.id, 'У Вас пока нет событий', reply_markup=keyboard)
+        tmp = user.get_events()
+        if len(tmp) == 0:
+            bot.send_message(message.chat.id, 'У Вас пока нет событий', reply_markup=keyboard_menu2)
         else:
-            for i in user.events:
-                bot.send_message(message.chat.id, i + " - " + user.events[i], reply_markup=keyboard)
+
+            for i in tmp:
+                bot.send_message(message.chat.id, i + " - " + tmp[i], reply_markup=keyboard_menu2)
     else:
         bot.send_message(message.chat.id, "Что-то другое")
     bot.register_next_step_handler(message, need_action_from_menu)
 
 
 def need_action_start(message):
-    keyboard = telebot.types.ReplyKeyboardMarkup(resize_keyboard=True, one_time_keyboard=True)
-    keyboard.add(*[telebot.types.KeyboardButton('Меню')])
     if message.text == 'Нужно':
         u_id = message.from_user.id
         user = dynamic_dict_of_users[u_id]
         user.parse_timetable()
         user.normalize_timetable()
-        for i in user.timetable:
-            bot.send_message(message.chat.id, i + '\n' + user.timetable[i])
-        bot.send_message(message.chat.id, "___", reply_markup=keyboard)
-        print(dynamic_dict_of_users)
+        tmp = user.get_timetable()
+        for i in tmp:
+            bot.send_message(message.chat.id, i + '\n' + tmp[i], reply_markup=keyboard_menu)
     elif message.text == 'Не нужно':
-        bot.send_message(message.chat.id, "Жаль", reply_markup=keyboard)
+        bot.send_message(message.chat.id, "Жаль", reply_markup=keyboard_menu)
     else:
-        bot.send_message(message.chat.id, "Что-то другое", reply_markup=keyboard)
+        bot.send_message(message.chat.id, "I don't understand you", reply_markup=keyboard_menu)
 
     bot.register_next_step_handler(message, need_action_menu)
 
 
 def need_action_from_menu(message):
-    keyboard = telebot.types.ReplyKeyboardMarkup(resize_keyboard=True, one_time_keyboard=True)
-    keyboard.add(*[telebot.types.KeyboardButton('Меню')])
+    u_id = message.from_user.id
+    user = dynamic_dict_of_users[u_id]
     if message.text == 'Events':
-        u_id = message.from_user.id
-        user = dynamic_dict_of_users[u_id]
-        for i in user.events:
-            bot.send_message(message.chat.id,i + ' ' + user.events[i], reply_markup=keyboard)
+        if len(user.get_events()) == 0:
+            bot.send_message(message.chat.id, "У вас пока нет событий", reply_markup=keyboard_menu)
+        else:
+            for i in user.events:
+                bot.send_message(message.chat.id, i + ' ' + user.events[i], reply_markup=keyboard_menu)
         bot.register_next_step_handler(message, need_action_menu)
     elif message.text == 'Timetable':
-        bot.send_message(message.chat.id, "Timetable", reply_markup=keyboard)
+        tmp = user.get_timetable()
+        for i in tmp:
+            bot.send_message(message.chat.id, i + '\n' + tmp[i], reply_markup=keyboard_menu)
         bot.register_next_step_handler(message, need_action_menu)
     elif message.text == 'Add event':
-        keyboard1 = telebot.types.ReplyKeyboardMarkup(resize_keyboard=True, one_time_keyboard=True)
-        keyboard1.add(*[telebot.types.KeyboardButton('Cancel')])
-        u_id = message.from_user.id
-        user = dynamic_dict_of_users[u_id]
-        bot.send_message(message.chat.id, "Введите Событие в формате дд.мм.гггг", reply_markup=keyboard1)
+        bot.send_message(message.chat.id, "Введите Событие в формате дд.мм.гггг", reply_markup=keyboard_cancel)
         bot.register_next_step_handler(message, need_action_add_event)
-    elif message.text == 'Else':
-        bot.send_message(message.chat.id, "Else")
-        bot.register_next_step_handler(message, need_action_menu)
+    elif message.text == 'More...':
+        bot.send_message(message.chat.id, "Else", reply_markup=keyboard_menu2_more)
+        bot.register_next_step_handler(message, need_action_more)
     else:
-        bot.send_message(message.chat.id, "Don't know what you mean", reply_markup=keyboard)
+        bot.send_message(message.chat.id, "Don't know what you mean", reply_markup=keyboard_menu)
         bot.register_next_step_handler(message, need_action_menu)
 
 
-def need_action_add_event(message):
+def need_action_add_event(message):   #!!!!!!ДОБАВИТЬ HANDLER!!!!!!!!
     u_id = message.from_user.id
     user = dynamic_dict_of_users[u_id]
     if len(message.text) == 10 and len(message.text.split('.')) == 3 and (0 < int(message.text[-4:]) < 2100):
-        keyboard = telebot.types.ReplyKeyboardMarkup(resize_keyboard=True, one_time_keyboard=True)
-        keyboard.add(*[telebot.types.KeyboardButton('Cancel')])
-        bot.send_message(message.chat.id, "Теперь напишите описание события", reply_markup=keyboard)
+        bot.send_message(message.chat.id, "Теперь напишите описание события", reply_markup=keyboard_cancel)
         user.set_tmp_event(message.text)
         bot.register_next_step_handler(message, need_action_add_event)
     elif message.text == 'Cancel':
-        keyboard = telebot.types.ReplyKeyboardMarkup(resize_keyboard=True, one_time_keyboard=True)
-        keyboard.add(*[telebot.types.KeyboardButton('Меню')])
-        bot.send_message(message.chat.id, "Отмена", reply_markup=keyboard)
-        bot.register_next_step_handler(message, need_action_menu)
-        date = user.get_tmp_event()
-        user.events.pop(date)
-        user.set_tmp_event('')
+        try:
+            bot.send_message(message.chat.id, "Отмена", reply_markup=keyboard_menu)
+            bot.register_next_step_handler(message, need_action_menu)
+            date = user.get_tmp_event()
+            user.events.pop(date)
+            user.set_tmp_event('')
+        except KeyError:
+            pass
     else:
-        keyboard = telebot.types.ReplyKeyboardMarkup(resize_keyboard=True, one_time_keyboard=True)
-        keyboard.add(*[telebot.types.KeyboardButton('Меню')])
-        bot.send_message(message.chat.id, "Событие добавлено", reply_markup=keyboard)
+        bot.send_message(message.chat.id, "Событие добавлено", reply_markup=keyboard_menu)
         date = user.get_tmp_event()
         user.events[date] = message.text
         print(user.events)
         bot.register_next_step_handler(message, need_action_menu)
 
 
+def need_action_more(message):
+    u_id = message.from_user.id
+    user = dynamic_dict_of_users[u_id]
 
+    keyboard2 = telebot.types.ReplyKeyboardMarkup(resize_keyboard=True, one_time_keyboard=True)
+    keyboard2.add(*[telebot.types.KeyboardButton(name) for name in ['Edit date', 'Edit description',
+                                                                    'delete event', 'back']])
+    if message.text == 'Edit timetable':
+        bot.send_message(message.chat.id, 'Выберите действие', reply_markup=keyboard2)
+        bot.register_next_step_handler(message, need_action_edit_event)
+    elif message.text == 'Edit events':
+        bot.send_message(message.chat.id, 'Выберите действие', reply_markup=keyboard2)
+        bot.register_next_step_handler(message, need_action_edit_event)
+    elif message.text == 'See more features':
+        bot.send_message(message.chat.id, 'You could see it on ...', reply_markup=keyboard_menu2)
+        bot.register_next_step_handler(message, need_action_more)
+    elif message.text == 'delete myself':
+        bot.send_message(message.chat.id, 'ok', reply_markup=keyboard_menu)
+        bot.register_next_step_handler(message, need_action_more)
+    elif message.text == 'back':                                                         #!!!!!!!!!!!ИСПРАВИТЬ!!!!!!!!!!
+        bot.send_message(message.chat.id, 'As you say', reply_markup=keyboard_menu2)
+        bot.register_next_step_handler(message, need_action_from_menu)
+    else:
+        bot.send_message(message.chat.id, 'don\'t understand', reply_markup=keyboard_menu2_more)
+        bot.register_next_step_handler(message, need_action_more)
+
+
+def need_action_edit_event(message):
+    u_id = message.from_user.id
+    user = dynamic_dict_of_users[u_id]
+
+    if message.text == 'Cancel':
+        bot.send_message(message.chat.id, "As you say", reply_markup=keyboard_menu)
+        bot.register_next_step_handler(message, need_action_menu)
+    elif message.text == 'Edit date':
+        for i in user.get_events():
+            bot.send_message(message.chat.id, user[i])
+        bot.send_message(message.chat.id, """Введите дату события, которую хотите изменить, затем пробел,
+а потом новую дату
+        
+Пример: 22.04.2018 23.04.2019""", reply_markup=keyboard_cancel)
+        bot.register_next_step_handler(message, need_action_check_two_dates_event)
+
+    elif message.text == 'Edit description':
+        for i in user.get_events():
+            bot.send_message(message.chat.id, user[i])
+        bot.send_message(message.chat.id, """Введите дату события, описание которого хотите изменить, затем дефис 
+(без пробелов), а потом новое описание
+        
+Пример: 22.04.2018-Я хочу, чтобы у события, запланированного на эту дату было именно это описание""",
+                         reply_markup=keyboard_cancel)
+        bot.register_next_step_handler(message, need_action_check_date_and_description_event)
+
+
+def need_action_check_two_dates_event(message):
+    u_id = message.from_user.id
+    user = dynamic_dict_of_users[u_id]
+    two_dates = message.text.split()
+    if len(message.text) == 21 and 1000 < int(two_dates[0][-4:]) < 2100 and 1000 < int(two_dates[1][-4:]) < 2100 and two_dates[0] in user.events:
+        user.change_event_date(two_dates[0], two_dates[1])
+        bot.send_message(message.chat.id, "Изменения внесены", reply_markup=keyboard_menu)
+        bot.register_next_step_handler(message, need_action_menu)
+    elif message.text == 'Cancel':
+        bot.send_message(message.chat.id, "Действие отменено", reply_markup=keyboard_menu2_more)
+        bot.register_next_step_handler(message, need_action_more)
+    else:
+        bot.send_message(message.chat.id, "Вы ввели что-то не то, попробуйте еще раз")
+        bot.send_message(message.chat.id, """Введите дату события, которую хотите изменить, затем пробел,
+а потом новую дату
+
+Пример: 22.04.2018 23.04.2019""", reply_markup=keyboard_cancel)
+        bot.register_next_step_handler(message, need_action_check_two_dates_event)
+
+
+def need_action_check_date_and_description_event(message):
+    try:
+        u_id = message.from_user.id
+        user = dynamic_dict_of_users[u_id]
+        two_dates = message.text.split('-')
+        if 1000 < int(two_dates[0][-4:]) < 2100:
+            user.change_event_description(two_dates[0], two_dates[1])
+            bot.send_message(message.chat.id, "Изменения внесены", reply_markup=keyboard_menu)
+            bot.register_next_step_handler(message, need_action_menu)
+
+        elif message.text == 'Cancel':
+            bot.send_message(message.chat.id, "Действие отменено", reply_markup=keyboard_menu2_more)
+            bot.register_next_step_handler(message, need_action_more)
+        else:
+            bot.send_message(message.chat.id, "Вы ввели что-то не то, попробуйте еще раз")
+            bot.send_message(message.chat.id, """Введите дату события, описание которого хотите изменить, затем дефис 
+(без пробелов), а потом новое описание
+
+Пример: 22.04.2018-Я хочу, чтобы у события, запланированного на эту дату было именно это описание""",
+                             reply_markup=keyboard_cancel)
+            bot.register_next_step_handler(message, need_action_check_date_and_description_event)
+    except ValueError:
+        bot.send_message(message.chat.id, "Вы ввели что-то не то, попробуйте еще раз")
+        bot.send_message(message.chat.id, """Введите дату события, описание которого хотите изменить, затем дефис 
+        (без пробелов), а потом новое описание
+
+        Пример: 22.04.2018-Я хочу, чтобы у события, запланированного на эту дату было именно это описание""",
+                         reply_markup=keyboard_cancel)
+        bot.register_next_step_handler(message, need_action_check_date_and_description_event)
 
 
 bot.polling(none_stop=True, interval=0)
