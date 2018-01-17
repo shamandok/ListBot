@@ -111,7 +111,7 @@ class User(object):
                 tmp_str2 = constants.days_of_the_week[i + 1]
                 self.timetable[tmp_str2] = tmp_str + '\n'
 
-        except BaseException:
+        except IndexError:
             return 'Just create normal timetable dict'
 
     def get_events(self):
