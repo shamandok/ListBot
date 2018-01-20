@@ -6,7 +6,7 @@
 [![Github Releases (by Release)](https://img.shields.io/github/downloads/atom/atom/v1.0.1.2/total.svg)](https://github.com/VladislavBurch/ListBot/releases)
 [![Codacy grade](https://img.shields.io/codacy/grade/e27821fb6289410b8f58338c7e0bc686.svg)](https://www.codacy.com/app/VladislavBurch/ListBot/dashboard)
 
-* [Последние изменения](#поледние-изменения)
+* [Последние изменения](#последние-изменения)
 * [Скачать и установить](#скачать)
 * [Цель](#цель)
 * [Основные определения](#основные-определения)
