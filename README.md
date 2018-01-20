@@ -3,9 +3,10 @@
   
 [![Build Status](https://travis-ci.org/VladislavBurch/ListBot.svg?branch=master)](https://travis-ci.org/VladislavBurch/ListBot)
 [![PyPI](https://img.shields.io/pypi/v/nine.svg)](https://pypi.python.org/pypi/ListBot/)
-[![Github Releases (by Release)](https://img.shields.io/github/downloads/atom/atom/v1.0.1.0/total.svg)](https://github.com/VladislavBurch/ListBot/)
+[![Github Releases (by Release)](https://img.shields.io/github/downloads/atom/atom/v1.0.1.2/total.svg)](https://github.com/VladislavBurch/ListBot/)
 [![Codacy grade](https://img.shields.io/codacy/grade/e27821fb6289410b8f58338c7e0bc686.svg)](https://www.codacy.com/app/VladislavBurch/ListBot/dashboard)
 
+* [Последние изменения](#поледние-изменения)
 * [Скачать и установить](#скачать)
 * [Цель](#цель)
 * [Основные определения](#основные-определения)
@@ -20,6 +21,12 @@
 * [Описание технический решений](#описание-технических-решений)
 * [Заключение](#заключение)
 * [Список используемых источников](#список-используемых-источников)
+
+
+## Последние изменения
+<a name="последние-изменения"></a>
+ В последней версии бота главным изменением является алгоритм его работы. Теперь бот взаимодействует с пользователем посредством кнопок.Реализован новое поле `events`, в котором хранятся события, загруженные пользователем. Так же реализован класс `User`, позволяющий сохранять события и расписание пользователя при непрерывной работе сервера. Появились методы `edit timetable` и `edit events`. Теперь информация о пользователях хранится в глобальном словаре, элементаи которого являются объекта класса `User`, а тэгами их `telegram id`. Новая версия бота уже выгружена на `PyPI`, с добавленным описанием в формате `README.rst`.
+
 
 ## Скачать
 <a name="скачать"></a>
