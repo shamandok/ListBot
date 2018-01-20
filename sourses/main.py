@@ -11,21 +11,21 @@ tmp = {}
 
 bot = telebot.TeleBot('key')
 
-keyboard_menu = telebot.types.ReplyKeyboardMarkup(resize_keyboard=True, one_time_keyboard=True)
+keyboard_menu = telebot.types.ReplyKeyboardMarkup(resize_keyboard=True)
 keyboard_menu.add(telebot.types.KeyboardButton('Меню'))
 
-keyboard_menu2 = telebot.types.ReplyKeyboardMarkup(resize_keyboard=True, one_time_keyboard=True)
+keyboard_menu2 = telebot.types.ReplyKeyboardMarkup(resize_keyboard=True)
 keyboard_menu2.add(*[telebot.types.KeyboardButton(name) for name in ['Events', 'Timetable', 'Add event', 'More...']])
 
-keyboard_menu2_more = telebot.types.ReplyKeyboardMarkup(resize_keyboard=True, one_time_keyboard=True)
+keyboard_menu2_more = telebot.types.ReplyKeyboardMarkup(resize_keyboard=True)
 keyboard_menu2_more.add(*[telebot.types.KeyboardButton(name) for name in ['Edit timetable', 'Edit events',
                                                                           'See more features', 'delete myself',
                                                                           'back']])
 
-keyboard_cancel = telebot.types.ReplyKeyboardMarkup(resize_keyboard=True, one_time_keyboard=True)
+keyboard_cancel = telebot.types.ReplyKeyboardMarkup(resize_keyboard=True)
 keyboard_cancel.add(telebot.types.KeyboardButton('Cancel'))
 
-keyboard_edit = telebot.types.ReplyKeyboardMarkup(resize_keyboard=True, one_time_keyboard=True)
+keyboard_edit = telebot.types.ReplyKeyboardMarkup(resize_keyboard=True)
 keyboard_edit.add(*[telebot.types.KeyboardButton(name) for name in ['Edit date', 'Edit description',
                                                                     'delete event', 'back']])
 
