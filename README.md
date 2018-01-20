@@ -3,7 +3,7 @@
   
 [![Build Status](https://travis-ci.org/VladislavBurch/ListBot.svg?branch=master)](https://travis-ci.org/VladislavBurch/ListBot)
 [![PyPI](https://img.shields.io/pypi/v/nine.svg)](https://pypi.python.org/pypi/ListBot/)
-[![Github Releases (by Release)](https://img.shields.io/github/downloads/atom/atom/v1.0.1.2/total.svg)](https://github.com/VladislavBurch/ListBot/)
+[![Github Releases (by Release)](https://img.shields.io/github/downloads/atom/atom/v1.0.1.2/total.svg)](https://github.com/VladislavBurch/ListBot/releases)
 [![Codacy grade](https://img.shields.io/codacy/grade/e27821fb6289410b8f58338c7e0bc686.svg)](https://www.codacy.com/app/VladislavBurch/ListBot/dashboard)
 
 * [Последние изменения](#поледние-изменения)
